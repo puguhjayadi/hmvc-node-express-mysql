@@ -3,6 +3,7 @@ const sql = require("../models/db.js");
 module.exports = function(table) {
 
   return {
+
     getAll : function(result) {
       sql.query("SELECT * FROM "+table, (err, res) => {
         if (err) {
@@ -14,7 +15,21 @@ module.exports = function(table) {
       });
     },
 
-    findById : function(id, result) {
+    store : function (object, result) {
+      sql.query("INSERT INTO "+table+" SET ?", object, (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          result(err, null);
+          return;
+        }
+
+        console.log("created object: ", { id: res.insertId, ...object });
+        result(null, { id: res.insertId, ...object });
+      });
+    },
+
+    
+    show : function(id, result) {
       sql.query("SELECT * FROM "+table+" WHERE id = ?", [id], (err, res) => {
         if (err) {
           console.log("error: ", err);
@@ -32,20 +47,7 @@ module.exports = function(table) {
       });
     },
 
-    create : function (object, result) {
-      sql.query("INSERT INTO "+table+" SET ?", object, (err, res) => {
-        if (err) {
-          console.log("error: ", err);
-          result(err, null);
-          return;
-        }
-
-        console.log("created object: ", { id: res.insertId, ...object });
-        result(null, { id: res.insertId, ...object });
-      });
-    },
-
-    updateById : function (id, object, result) {
+    update : function (id, object, result) {
       sql.query( "UPDATE "+table+" SET ? WHERE id = ?", [object, id], (err, res) => {
         if (err) {
           console.log("error: ", err);
@@ -64,7 +66,7 @@ module.exports = function(table) {
       );
     },
 
-    remove : function(id, result) {
+    destroy : function(id, result) {
       sql.query("DELETE FROM "+table+" WHERE id = ?", id, (err, res) => {
         if (err) {
           console.log("error: ", err);
