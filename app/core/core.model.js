@@ -1,4 +1,4 @@
-const sql = require("../models/db.js");
+const sql = require("../core/core.connection.js");
 
 module.exports = function(table) {
 
