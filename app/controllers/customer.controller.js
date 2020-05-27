@@ -1,8 +1,13 @@
 const Customer = require("../models/customer.model.js");
 const coreModel = require("../core/core.model.js")(Customer.table);
 
+
+// http://localhost:3000/customers?search=ayu&page=3&per_page=3
 exports.getAll = (req, res) => {
-  coreModel.getAll((err, data) => {
+  
+  req.column = ["name", "email", "active"];
+
+  coreModel.paginate(req, (err, data) => {
     if (err)
       res.status(500).send({
         message:
