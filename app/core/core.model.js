@@ -1,18 +1,14 @@
-const sql = require("../core/core.connection.js");
+const connection = require("../core/core.connection.js");
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 module.exports = function(table) {
 
   return {
 
-    whereLike : function(columns, search) {
-      return {
-        columns : columns.join(" LIKE ? OR ")+" LIKE ?",
-        search : Array(columns.length).fill('%'+search+'%')
-      }
-    },
-
     paginate : function(object, result) {
-      const host      = object.protocol+"://"+object.hostname;
+      const host      = object.protocol+"://"+object.hostname+":"+PORT;
       const per_page  = (object.query.per_page) ? parseInt(object.query.per_page) : 10;
       const page      = (object.query.page) ? parseInt(object.query.page) : 1;
       const search    = (object.query.search) ? object.query.search : '';
@@ -27,14 +23,14 @@ module.exports = function(table) {
         querySearch= queryBase;
       }
 
-      sql.query(querySearch, whereLike.search, (err, rows) => {
+      connection.query(querySearch, whereLike.search, (err, rows) => {
         let tot = parseInt(rows.length);
         let first_page = 1;
         let previous_page = page > 0 ? page - 1 : "null";
         let next_page = page < Math.ceil(tot / per_page) ? page + 1 : "null";
         let last_page = Math.ceil(tot / per_page);
 
-        sql.query(queryLimit, whereLike.search, (err, res) => {
+        connection.query(queryLimit, whereLike.search, (err, res) => {
           if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -45,11 +41,12 @@ module.exports = function(table) {
             search : search,
             total : tot,
             per_page : per_page,
+            previous_page : previous_page,
             current_page : page,
             last_page : last_page,
             first_page_url: host+object.path + "?search="+search+"&page="+first_page+"&per_page="+per_page,
             last_page_url: host+object.path + "?search="+search+"&page="+last_page+"&per_page="+per_page,
-            previous_page_url: host+object.path + "?search="+search+"&page="+previous_page+"&per_page="+per_page,
+            previous_page_url: (previous_page != 0) ? host+object.path + "?search="+search+"&page="+previous_page+"&per_page="+per_page : "null",
             next_page_url: (next_page != "null") ? host+object.path + "?search="+search+"&page="+next_page+"&per_page="+per_page : "null",
             path : host + object.path,
             from : offset + 1,
@@ -64,7 +61,18 @@ module.exports = function(table) {
 
 
     all : function(result) {
-      sql.query("SELECT * FROM "+table, (err, res) => {
+      connection.query("SELECT * FROM "+table, (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          result(err, null);
+          return;
+        }
+        result(null, res);
+      });
+    },
+
+    nums : function(result) {
+      connection.query("SELECT COUNT(*) AS nums FROM "+table, (err, res) => {
         if (err) {
           console.log("error: ", err);
           result(err, null);
@@ -75,7 +83,7 @@ module.exports = function(table) {
     },
 
     store : function (object, result) {
-      sql.query("INSERT INTO "+table+" SET ?", object, (err, res) => {
+      connection.query("INSERT INTO "+table+" SET ?", object, (err, res) => {
         if (err) {
           console.log("error: ", err);
           result(err, null);
@@ -89,7 +97,7 @@ module.exports = function(table) {
 
 
     show : function(id, result) {
-      sql.query("SELECT * FROM "+table+" WHERE id = ?", [id], (err, res) => {
+      connection.query("SELECT * FROM "+table+" WHERE id = ?", [id], (err, res) => {
         if (err) {
           console.log("error: ", err);
           result(err, null);
@@ -107,7 +115,7 @@ module.exports = function(table) {
     },
 
     update : function (id, object, result) {
-      sql.query( "UPDATE "+table+" SET ? WHERE id = ?", [object, id], (err, res) => {
+      connection.query( "UPDATE "+table+" SET ? WHERE id = ?", [object, id], (err, res) => {
         if (err) {
           console.log("error: ", err);
           result(null, err);
@@ -126,7 +134,7 @@ module.exports = function(table) {
     },
 
     destroy : function(id, result) {
-      sql.query("DELETE FROM "+table+" WHERE id = ?", id, (err, res) => {
+      connection.query("DELETE FROM "+table+" WHERE id = ?", id, (err, res) => {
         if (err) {
           console.log("error: ", err);
           result(null, err);
@@ -141,6 +149,13 @@ module.exports = function(table) {
         console.log("deleted object with id: ", id);
         result(null, res);
       });
+    },
+
+    whereLike : function(columns, search) {
+      return {
+        columns : columns.join(" LIKE ? OR ")+" LIKE ?",
+        search : Array(columns.length).fill('%'+search+'%')
+      }
     },
 
 

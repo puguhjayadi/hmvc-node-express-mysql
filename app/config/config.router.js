@@ -5,5 +5,5 @@ module.exports = app => {
         res.json({ message: "Welcome to application." });
       });
 
-    require("./customer.routes.js")(app);
+    require("../modules/customers/routers/customer.routes.js")(app);
 };
