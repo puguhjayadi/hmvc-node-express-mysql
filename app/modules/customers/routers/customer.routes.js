@@ -2,6 +2,7 @@ const customers = require("../controllers/customer.controller.js");
 
 module.exports = app => {
     app.get("/customers", customers.getAll);
+    app.get("/customers/view", customers.view);
     app.post("/customers", customers.store);
     app.get("/customers/:customerId", customers.show);
     app.put("/customers/:customerId", customers.update);

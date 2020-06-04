@@ -1,6 +1,4 @@
 const connection = require("../core/core.connection.js");
-const express = require('express');
-const app = express();
 const PORT = process.env.PORT || 3000;
 
 module.exports = function(table) {

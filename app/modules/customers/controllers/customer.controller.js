@@ -1,17 +1,17 @@
-const Customer = require("../models/customer.model.js");
+const Customer  = require("../models/customer.model.js");
 const coreModel = require("../../../core/core.model.js")(Customer.table);
-
+const modules   = 'customers';
 
 // http://localhost:3000/customers?search=ayu&page=3&per_page=3
 exports.getAll = (req, res) => {
-  
+
   req.column = ["name", "email", "active"];
 
   coreModel.paginate(req, (err, data) => {
     if (err)
       res.status(500).send({
         message:
-          err.message || "Some error occurred while retrieving customers."
+        err.message || "Some error occurred while retrieving customers."
       });
     else res.send(data);
   });
@@ -34,7 +34,7 @@ exports.store = (req, res) => {
     if (err)
       res.status(500).send({
         message:
-          err.message || "Some error occurred while creating the Customer."
+        err.message || "Some error occurred while creating the Customer."
       });
     else res.send(data);
   });
@@ -79,7 +79,7 @@ exports.update = (req, res) => {
         }
       } else res.send(data);
     }
-  );
+    );
 };
 
 exports.destroy = (req, res) => {
@@ -96,4 +96,12 @@ exports.destroy = (req, res) => {
       }
     } else res.send({ message: `Customer was deleted successfully!` });
   });
+};
+
+exports.view = (req, res) => {
+
+  // hbs.registerPartials('/Applications/MAMP/htdocs/node-project/nodejs-express-mysql/app/views');
+  // hbs.registerPartials('../../../views');
+
+  res.render('index');
 };
