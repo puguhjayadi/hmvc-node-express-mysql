@@ -6,7 +6,6 @@ const url = require('url');
 const app = express();
 const hbs = require('hbs');
 
-console.log(url.origin);
 
 app.set('views',path.join(__dirname,'app/modules/customers/views'));
 //set view engine

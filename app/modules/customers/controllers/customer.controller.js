@@ -99,9 +99,5 @@ exports.destroy = (req, res) => {
 };
 
 exports.view = (req, res) => {
-
-  // hbs.registerPartials('/Applications/MAMP/htdocs/node-project/nodejs-express-mysql/app/views');
-  // hbs.registerPartials('../../../views');
-
   res.render('index');
 };
